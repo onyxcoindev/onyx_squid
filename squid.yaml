@@ -1,0 +1,23 @@
+manifestVersion: subsquid.io/v0.1
+name: onyx-squid
+version: 1
+description: |-
+  Onyx Squid
+build:
+deploy:
+  env:
+    DB_HOST: ${{ secrets.DB_HOST }}
+    DB_PORT: ${{ secrets.DB_PORT }}
+    DB_NAME: ${{ secrets.DB_NAME }}
+    DB_USER: ${{ secrets.DB_USER }}
+    DB_PASS: ${{ secrets.DB_PASS }}
+    SQD_ERROR: sqd:processor:mapping
+    SQD_WARN: sqd:processor:mapping
+  addons:
+    rpc:
+      - eth.http
+    postgres:
+  processor:
+    cmd: ['sqd', 'process:prod']
+  api:
+    cmd: ['sqd', 'serve:prod']

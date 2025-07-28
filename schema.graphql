@@ -1,0 +1,47 @@
+type User @entity {
+  id: ID! # address
+  points: Float!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Stake @entity {
+  id: ID!
+  blockNumber: Int!
+  timestamp: Int!
+  txHash: String!
+  amount: BigInt!
+  user: User!
+}
+
+type Withdraw @entity {
+  id: ID!
+  blockNumber: Int!
+  timestamp: Int!
+  txHash: String!
+  amount: BigInt!
+  user: User!
+}
+
+type Asset @entity {
+  id: ID!
+  symbol: String!
+  decimals: Int!
+  totalSupply: BigInt!
+  lastUpdatedBlock: Int!
+  pointsPerToken: Float!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserBalance @entity {
+  id: ID!
+  user: User!
+  asset: Asset!
+  balance: BigInt!
+  points: Float!
+  userPointsPaid: Float!
+  lastUpdatedBlock: Int!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
