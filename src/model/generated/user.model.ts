@@ -20,12 +20,14 @@ export class User {
   points!: number
 
   @CreateDateColumn_({
+    name: 'created_at',
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP(6)',
   })
   createdAt!: Date
 
   @UpdateDateColumn_({
+    name: 'updated_at',
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',

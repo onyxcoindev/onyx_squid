@@ -31,7 +31,7 @@ export class PointsAction extends Action<PointsActionData> {
 
   private async findLatestAsset(block: number) {
     let asset = await this.store.findOne(Asset, {
-      where: { id: this.data.assetId, lastUpdatedBlock: LessThanOrEqual(block) },
+      where: { lastUpdatedBlock: LessThanOrEqual(block) },
       order: { lastUpdatedBlock: 'DESC' },
     })
 
@@ -76,9 +76,7 @@ export class PointsAction extends Action<PointsActionData> {
 
   private notifyPoints(asset: Asset, pointsRate: number, currentBlock: number) {
     const totalSupplyBN = BigDecimal(asset.totalSupply, asset.decimals)
-    if (totalSupplyBN.eq(0)) {
-      return
-    }
+    if (totalSupplyBN.eq(0)) return
 
     const deltaBlocks = currentBlock - asset.lastUpdatedBlock
     const additionalPoints = BigDecimal(pointsRate).times(deltaBlocks).div(totalSupplyBN)

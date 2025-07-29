@@ -126,6 +126,16 @@
         "1000"
       ]
     },
+    "cron": {
+      "description": "Start the cron job",
+      "deps": [
+        "migration:apply"
+      ],
+      "cmd": [
+        "node",
+        "lib/cron.js"
+      ]
+    },
     "check-updates": {
       "cmd": [
         "npx",

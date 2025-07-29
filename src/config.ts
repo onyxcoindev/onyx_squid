@@ -1,3 +1,9 @@
+export const DB_NAME = process.env.DB_NAME || 'onyx-squid'
+export const DB_HOST = process.env.DB_HOST || 'localhost'
+export const DB_PORT = process.env.DB_PORT || 23798
+export const DB_USER = process.env.DB_USER || 'postgres'
+export const DB_PASS = process.env.DB_PASS || 'postgres'
+
 export const STAKING_ADDRESS = '0x23445c63FeEf8D85956dc0f19aDe87606D0e19A9'
 
 export const XCN_ADDRESS = 'XCN'

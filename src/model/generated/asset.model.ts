@@ -22,16 +22,21 @@ export class Asset {
   @Column_('int4', { nullable: false })
   decimals!: number
 
-  @Column_('numeric', { nullable: false })
+  @Column_('numeric', { name: 'total_supply', nullable: false })
   totalSupply!: string
 
-  @Column_('int4', { nullable: false })
+  @Column_('int4', { name: 'last_updated_block', nullable: false })
   lastUpdatedBlock!: number
 
-  @Column_('numeric', { transformer: marshal.floatTransformer, nullable: false })
+  @Column_('numeric', {
+    transformer: marshal.floatTransformer,
+    name: 'points_per_token',
+    nullable: false,
+  })
   pointsPerToken!: number
 
   @CreateDateColumn_({
+    name: 'created_at',
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP(6)',
     nullable: true,
@@ -39,6 +44,7 @@ export class Asset {
   createdAt!: Date
 
   @UpdateDateColumn_({
+    name: 'updated_at',
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
