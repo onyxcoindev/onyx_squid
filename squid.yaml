@@ -18,6 +18,9 @@ deploy:
       - eth.http
     postgres:
   processor:
-    cmd: ['sqd', 'process:prod']
+    - name: processor
+      cmd: [ "sqd", "process" ]
+    - name: cronjob
+      cmd: [ "sqd", "cron" ]
   api:
     cmd: ['sqd', 'serve:prod']

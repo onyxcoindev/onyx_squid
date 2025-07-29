@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "rm -rf lib && tsc",
-    "update": "npx npm-check-updates --filter /subsquid/ --upgrade && npm i -f"
+    "update": "npx npm-check-updates --filter /subsquid/ --upgrade && npm i -f",
+    "start": "./node_modules/.bin/pm2-runtime start ecosystem.config.js"
   },
   "dependencies": {
     "@belopash/typeorm-store": "^1.5.0",
@@ -20,6 +21,7 @@
     "moment": "^2.30.1",
     "node-cron": "^4.2.1",
     "pg": "^8.11.5",
+    "pm2": "^6.0.8",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
