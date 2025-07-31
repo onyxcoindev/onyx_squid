@@ -102,6 +102,7 @@
       "description": "Start the squid processor",
       "cmd": [
         "node",
+        "--require=dotenv/config",
         "lib/main.js"
       ],
       "hidden": true
@@ -133,6 +134,7 @@
       ],
       "cmd": [
         "node",
+        "--require=dotenv/config",
         "lib/cron.js"
       ]
     },

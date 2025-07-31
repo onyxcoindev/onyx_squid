@@ -1,9 +1,14 @@
 import cron from 'node-cron'
 import _ from 'lodash'
-import { EntityManager, LessThanOrEqual } from 'typeorm'
-import { formatServiceName, wrapPromiseFunction, cronExpression, ZERO_BN } from '../utils'
+import { EntityManager, LessThan, LessThanOrEqual } from 'typeorm'
 import { BigDecimal } from '@subsquid/big-decimal'
-import { POINTS_CALCULATED_AT_BLOCK, XCN_ADDRESS, XCN_POINTS_RATE } from '../../config'
+import { formatServiceName, wrapPromiseFunction, cronExpression, ZERO_BN } from '../utils'
+import {
+  BLOCKS_PER_DAY,
+  POINTS_CALCULATED_AT_BLOCK,
+  POINTS_PER_DAY,
+  XCN_ADDRESS,
+} from '../../config'
 import { Asset, User } from '../../model'
 
 interface IUserBalance {
@@ -69,7 +74,7 @@ const getCurrentBlock = async (manager: EntityManager) => {
 
 const calculateAdditionalPoints = (asset: Asset, currentBlock: number) => {
   const totalSupplyBN = BigDecimal(asset.totalSupply, asset.decimals)
-  const pointsRate = XCN_POINTS_RATE
+  const pointsRate = POINTS_PER_DAY / BLOCKS_PER_DAY
 
   const deltaBlocks = currentBlock - asset.lastUpdatedBlock
   const additionalPoints = totalSupplyBN.gt(0)
@@ -90,9 +95,9 @@ const getUsersBalanceAtBlock = async (manager: EntityManager, block: number, ass
 }
 
 const pointsPerAsset = (user: IUserBalance, asset: Asset, additionalPoints: BigDecimal) => {
-  const pointsPerToken = BigDecimal(asset.pointsPerToken).plus(additionalPoints).toString()
+  const pointsPerToken = BigDecimal(asset.pointsPerToken).plus(additionalPoints)
 
-  const delta = BigDecimal(pointsPerToken).minus(user.user_points_paid)
+  const delta = pointsPerToken.minus(user.user_points_paid)
   const earned = BigDecimal(user.balance, asset.decimals).times(delta)
 
   return earned.plus(user.points)

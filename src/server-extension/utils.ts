@@ -41,13 +41,5 @@ export const cronExpression = {
   every10Seconds: '*/10 * * * * *',
   every15Seconds: '*/15 * * * * *',
   every30Seconds: '0,30 * * * * *',
-  every30Seconds1: '30,0 * * * * *',
-  every35Seconds: '*/35 * * * * *',
-  every45Seconds: '*/45 * * * * *',
   every60Seconds: '0 * * * * *',
-  every2Minutes: '0 */2 * * * *',
-  every3Minutes: '0 */3 * * * *',
-  every6Minutes: '0 */6 * * * *',
-  every10Minutes: '0 */10 * * * *',
-  every15Minutes: '0 */15 * * * *',
 }

@@ -1,10 +1,14 @@
 import { LessThanOrEqual } from 'typeorm'
+import { BigDecimal } from '@subsquid/big-decimal'
 import { Asset, UserBalance } from '../model'
 import { Action } from './base'
-import { BigDecimal } from '@subsquid/big-decimal'
-import { POINTS_CALCULATED_AT_BLOCK, XCN_ADDRESS, XCN_DECIMALS } from '../config'
-
-const POINTS_RATE = 5_000_000
+import {
+  BLOCKS_PER_DAY,
+  POINTS_CALCULATED_AT_BLOCK,
+  POINTS_PER_DAY,
+  XCN_ADDRESS,
+  XCN_DECIMALS,
+} from '../config'
 
 export interface PointsActionData {
   userId: string
@@ -23,7 +27,8 @@ export class PointsAction extends Action<PointsActionData> {
       this.findLatestUserBalance(this.block.height),
     ])
 
-    this.notifyPoints(asset, POINTS_RATE, this.block.height)
+    const pointsRate = POINTS_PER_DAY / BLOCKS_PER_DAY
+    this.notifyPoints(asset, pointsRate, this.block.height)
     await this.setBalance(userBalance, asset, this.data.amount)
 
     this.log.debug(`Updated points for user ${this.data.userId}`)
