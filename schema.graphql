@@ -1,6 +1,8 @@
 type User @entity {
   id: ID! # address
   points: Float!
+  balance: BigInt
+  lastUpdatedAtBlock: Int
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -41,6 +43,14 @@ type UserBalance @entity {
   balance: BigInt!
   points: Float!
   userPointsPaid: Float!
+  lastUpdatedBlock: Int!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Stats @entity {
+  id: ID!
+  totalStaked: BigInt!
   lastUpdatedBlock: Int!
   createdAt: DateTime
   updatedAt: DateTime

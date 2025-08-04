@@ -1,4 +1,5 @@
-import { Stake, Withdraw } from '../model'
+import assert from 'assert'
+import { Stake, Stats, User, Withdraw } from '../model'
 import { Action } from './base'
 
 export interface StakeActionData {
@@ -17,9 +18,39 @@ export class StakeAction extends Action<StakeActionData> {
       txHash: this.transaction?.hash,
     })
 
-    await this.store.insert(stake)
+    await Promise.all([
+      this.store.insert(stake),
+      this.updateUserBalance(this.data.userId),
+      this.updateStats(),
+    ])
 
     this.log.debug(`User ${this.data.userId} staked ${this.data.amount}`)
+  }
+
+  private async updateUserBalance(userId: string) {
+    const user = await this.store.getOrFail(User, userId)
+    assert(user !== null)
+
+    user.balance += this.data.amount
+    user.lastUpdatedAtBlock = this.block.height
+
+    await this.store.upsert(user)
+  }
+
+  private async updateStats() {
+    let stats = await this.store.findOne(Stats, { where: {} })
+    if (!stats) {
+      stats = new Stats({
+        id: '1',
+        totalStaked: this.data.amount,
+        lastUpdatedBlock: this.block.height,
+      })
+    } else {
+      stats.totalStaked += this.data.amount
+      stats.lastUpdatedBlock = this.block.height
+    }
+
+    await this.store.upsert(stats)
   }
 }
 
@@ -39,8 +70,38 @@ export class WithdrawAction extends Action<WithdrawActionData> {
       txHash: this.transaction?.hash,
     })
 
-    await this.store.insert(withdraw)
+    await Promise.all([
+      this.store.insert(withdraw),
+      this.updateUserBalance(this.data.userId),
+      this.updateStats(),
+    ])
 
     this.log.debug(`User ${this.data.userId} withdrew ${this.data.amount}`)
+  }
+
+  private async updateUserBalance(userId: string) {
+    const user = await this.store.getOrFail(User, userId)
+    assert(user !== null)
+
+    user.balance -= this.data.amount
+    user.lastUpdatedAtBlock = this.block.height
+
+    await this.store.upsert(user)
+  }
+
+  private async updateStats() {
+    let stats = await this.store.findOne(Stats, { where: {} })
+    if (!stats) {
+      stats = new Stats({
+        id: '1',
+        totalStaked: 0n,
+        lastUpdatedBlock: this.block.height,
+      })
+    } else {
+      stats.totalStaked -= this.data.amount
+      stats.lastUpdatedBlock = this.block.height
+    }
+
+    await this.store.upsert(stats)
   }
 }

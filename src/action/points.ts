@@ -1,6 +1,6 @@
 import { LessThanOrEqual } from 'typeorm'
 import { BigDecimal } from '@subsquid/big-decimal'
-import { Asset, UserBalance } from '../model'
+import { Asset, Stats, User, UserBalance } from '../model'
 import { Action } from './base'
 import {
   BLOCKS_PER_DAY,
@@ -43,7 +43,7 @@ export class PointsAction extends Action<PointsActionData> {
     if (!asset || asset.lastUpdatedBlock !== block) {
       asset = new Asset({
         id: `${this.data.assetId}-${block}`,
-        totalSupply: asset?.totalSupply ?? '0',
+        totalSupply: asset?.totalSupply ?? (await this.getLatestTotalSupply()),
         pointsPerToken: asset?.pointsPerToken ?? 0,
         symbol: XCN_ADDRESS,
         decimals: asset?.decimals ?? XCN_DECIMALS,
@@ -52,6 +52,11 @@ export class PointsAction extends Action<PointsActionData> {
     }
 
     return asset
+  }
+
+  private async getLatestTotalSupply() {
+    const stats = await this.store.findOne(Stats, { where: {} })
+    return String(stats?.totalStaked ?? '0')
   }
 
   private async findLatestUserBalance(block: number) {
@@ -69,7 +74,7 @@ export class PointsAction extends Action<PointsActionData> {
         id: `${this.data.userId}-${this.data.assetId}-${block}`,
         userId: this.data.userId,
         assetAddress: this.data.assetId,
-        balance: userBalance?.balance ?? '0',
+        balance: userBalance?.balance ?? (await this.getLatestUserBalance(this.data.userId)),
         points: userBalance?.points ?? 0,
         userPointsPaid: userBalance?.userPointsPaid ?? 0,
         lastUpdatedBlock: userBalance?.lastUpdatedBlock ?? block,
@@ -77,6 +82,11 @@ export class PointsAction extends Action<PointsActionData> {
     }
 
     return userBalance
+  }
+
+  private async getLatestUserBalance(userId: string) {
+    const user = await this.store.findOne(User, { where: { id: userId } })
+    return String(user?.balance ?? '0')
   }
 
   private notifyPoints(asset: Asset, pointsRate: number, currentBlock: number) {

@@ -8,27 +8,29 @@ import {
 import * as marshal from './marshal'
 
 @Entity_()
-export class User {
-  constructor(props?: Partial<User>) {
+export class Stats {
+  constructor(props?: Partial<Stats>) {
     Object.assign(this, props)
   }
 
   @PrimaryColumn_()
   id!: string
 
-  @Column_('numeric', { transformer: marshal.floatTransformer, nullable: false })
-  points!: number
+  @Column_('numeric', {
+    name: 'total_staked',
+    transformer: marshal.bigintTransformer,
+    nullable: false,
+  })
+  totalStaked!: bigint
 
-  @Column_('numeric', { transformer: marshal.bigintTransformer, nullable: true })
-  balance!: bigint
-
-  @Column_('int4', { name: 'balance_updated_at_block', nullable: true })
-  lastUpdatedAtBlock!: number
+  @Column_('int4', { name: 'last_updated_block', nullable: false })
+  lastUpdatedBlock!: number
 
   @CreateDateColumn_({
     name: 'created_at',
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP(6)',
+    nullable: true,
   })
   createdAt!: Date
 

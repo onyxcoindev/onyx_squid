@@ -10,6 +10,7 @@ export class CreateUserAction extends Action<CreateUserActionData> {
     const user = new User({
       id: this.data.address,
       points: 0,
+      balance: 0n,
       createdAt: new Date(),
       updatedAt: new Date(),
     })

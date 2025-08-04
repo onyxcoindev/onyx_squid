@@ -29,8 +29,8 @@ export class Asset {
   lastUpdatedBlock!: number
 
   @Column_('numeric', {
-    transformer: marshal.floatTransformer,
     name: 'points_per_token',
+    transformer: marshal.floatTransformer,
     nullable: false,
   })
   pointsPerToken!: number
