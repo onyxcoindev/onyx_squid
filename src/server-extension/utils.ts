@@ -53,3 +53,15 @@ export function mergeArrayOfObjectsByKey<E extends ObjectLiteral>(arr: E[], key:
 
   return mergedArr
 }
+
+export function pagination(limit: number, offset: number, total: number) {
+  let page = 1
+  let totalPages = 1
+
+  if (limit) {
+    page = parseInt(String((offset ?? 0) / limit), 10) + 1
+    totalPages = Math.ceil(total / limit)
+  }
+
+  return { page, limit: limit ?? total, totalPages, total }
+}
