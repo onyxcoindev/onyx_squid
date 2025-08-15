@@ -1,14 +1,8 @@
 import { LessThanOrEqual } from 'typeorm'
 import { BigDecimal } from '@subsquid/big-decimal'
-import { Asset, Stats, User, UserBalance } from '../model'
+import { Asset, PointSetting, Stats, User, UserBalance } from '../model'
 import { Action } from './base'
-import {
-  BLOCKS_PER_DAY,
-  POINTS_CALCULATED_AT_BLOCK,
-  POINTS_PER_DAY,
-  XCN_ADDRESS,
-  XCN_DECIMALS,
-} from '../config'
+import { ETH_BLOCKS_PER_DAY, XCN_ADDRESS, XCN_DECIMALS } from '../config'
 
 export interface PointsActionData {
   userId: string
@@ -18,16 +12,19 @@ export interface PointsActionData {
 
 export class PointsAction extends Action<PointsActionData> {
   async perform() {
-    if (this.block.height < POINTS_CALCULATED_AT_BLOCK) {
-      return
-    }
+    const pointSetting = await this.store.findOne(PointSetting, {
+      where: { ethStartBlock: LessThanOrEqual(this.block.height) },
+      order: { ethStartBlock: 'DESC' },
+    })
+    if (!pointSetting || !pointSetting.ethStartBlock) return
 
     const [asset, userBalance] = await Promise.all([
       this.findLatestAsset(this.block.height),
       this.findLatestUserBalance(this.block.height),
     ])
 
-    const pointsRate = POINTS_PER_DAY / BLOCKS_PER_DAY
+    const pointsPerDay = (pointSetting.pointsPerDay ?? 0) * (pointSetting.ethWeight ?? 0)
+    const pointsRate = pointsPerDay / ETH_BLOCKS_PER_DAY
     this.notifyPoints(asset, pointsRate, this.block.height)
     await this.setBalance(userBalance, asset, this.data.amount)
 

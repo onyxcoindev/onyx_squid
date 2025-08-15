@@ -8,13 +8,7 @@ export const STAKING_ADDRESS = '0x23445c63FeEf8D85956dc0f19aDe87606D0e19A9'
 
 export const XCN_ADDRESS = 'XCN'
 export const XCN_DECIMALS = 18
-
-export const BLOCKS_PER_DAY = 7200 // (Estimated 1 block per 12 seconds on Ethereum Mainnet)
-export const POINTS_PER_DAY = parseInt(process.env.POINTS_PER_DAY || '5000000', 10) // (5M points per day)
-export const POINTS_CALCULATED_AT_BLOCK = parseInt(
-  process.env.POINTS_CALCULATED_AT_BLOCK || '22917674',
-  10
-) // (Block number when points were calculated)
+export const ETH_BLOCKS_PER_DAY = 7200 // (Estimated 1 block per 12 seconds on Ethereum Mainnet)
 
 export const ONYX_POINTS_API_ENDPOINT = 'https://pnt.onyx.org/api/v1'
 

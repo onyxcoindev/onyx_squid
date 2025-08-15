@@ -8,8 +8,8 @@ import {
 import * as marshal from './marshal'
 
 @Entity_()
-export class User {
-  constructor(props?: Partial<User>) {
+export class PointSetting {
+  constructor(props?: Partial<PointSetting>) {
     Object.assign(this, props)
   }
 
@@ -17,29 +17,34 @@ export class User {
   id!: string
 
   @Column_('numeric', {
-    name: 'eth_points',
+    name: 'points_per_day',
     transformer: marshal.floatTransformer,
     nullable: true,
     default: 0,
   })
-  ethPoints!: string
+  pointsPerDay!: number
 
   @Column_('numeric', {
-    name: 'onyx_points',
+    name: 'eth_weight',
     transformer: marshal.floatTransformer,
     nullable: true,
     default: 0,
   })
-  onyxPoints!: string
+  ethWeight!: number
 
-  @Column_('numeric', { transformer: marshal.floatTransformer, nullable: false })
-  points!: string
+  @Column_('numeric', {
+    name: 'onyx_weight',
+    transformer: marshal.floatTransformer,
+    nullable: true,
+    default: 0,
+  })
+  onyxWeight!: number
 
-  @Column_('numeric', { transformer: marshal.bigintTransformer, nullable: true })
-  balance!: bigint
+  @Column_('int4', { name: 'eth_start_block', nullable: true })
+  ethStartBlock!: number
 
-  @Column_('int4', { name: 'balance_updated_at_block', nullable: true })
-  balanceUpdatedAtBlock!: number
+  @Column_('int4', { name: 'onyx_start_block', nullable: true })
+  onyxStartBlock!: number
 
   @CreateDateColumn_({
     name: 'created_at',

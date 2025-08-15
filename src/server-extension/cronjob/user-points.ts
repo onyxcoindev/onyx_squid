@@ -4,14 +4,8 @@ import _ from 'lodash'
 import { EntityManager, LessThanOrEqual } from 'typeorm'
 import { BigDecimal } from '@subsquid/big-decimal'
 import { formatServiceName, mergeArrayOfObjectsByKey, wrapPromiseFunction } from '../utils'
-import {
-  BLOCKS_PER_DAY,
-  ONYX_POINTS_API_ENDPOINT,
-  POINTS_CALCULATED_AT_BLOCK,
-  POINTS_PER_DAY,
-  XCN_ADDRESS,
-} from '../../config'
-import { Asset, User } from '../../model'
+import { ETH_BLOCKS_PER_DAY, ONYX_POINTS_API_ENDPOINT, XCN_ADDRESS } from '../../config'
+import { Asset, PointSetting, User } from '../../model'
 import { cronExpression, ZERO_BN } from '../constants'
 
 interface IUserBalance {
@@ -54,9 +48,8 @@ const handleUserPoints = async (manager: EntityManager) => {
   })
   if (!asset) return {}
 
-  const additionalPoints = calculateAdditionalPoints(asset, currentBlock)
-
-  const [usersBalance, usersPointsOnOnyx] = await Promise.all([
+  const [additionalPoints, usersBalance, usersPointsOnOnyx] = await Promise.all([
+    calculateAdditionalPoints(asset, currentBlock, manager),
     getUsersBalanceAtBlock(manager, currentBlock, XCN_ADDRESS),
     getUsersPointsOnOnyx(),
   ])
@@ -112,12 +105,24 @@ const getUsersPointsOnOnyx = async () => {
 
 const getCurrentBlock = async (manager: EntityManager) => {
   const currentBlock = await manager.query(`SELECT height FROM squid_processor.status`)
-  return currentBlock?.[0]?.height ?? POINTS_CALCULATED_AT_BLOCK
+  return currentBlock?.[0]?.height ?? 0
 }
 
-const calculateAdditionalPoints = (asset: Asset, currentBlock: number) => {
+const calculateAdditionalPoints = async (
+  asset: Asset,
+  currentBlock: number,
+  manager: EntityManager
+) => {
+  const pointSettingRepo = manager.getRepository(PointSetting)
+  const pointSetting = await pointSettingRepo.findOne({
+    where: { ethStartBlock: LessThanOrEqual(currentBlock) },
+    order: { ethStartBlock: 'DESC' },
+  })
+  if (!pointSetting || !pointSetting.ethStartBlock) return ZERO_BN
+
   const totalSupplyBN = BigDecimal(asset.totalSupply, asset.decimals)
-  const pointsRate = POINTS_PER_DAY / BLOCKS_PER_DAY
+  const pointsPerDay = (pointSetting.pointsPerDay ?? 0) * (pointSetting.ethWeight ?? 0)
+  const pointsRate = pointsPerDay / ETH_BLOCKS_PER_DAY
 
   const deltaBlocks = currentBlock - asset.lastUpdatedBlock
   const additionalPoints = totalSupplyBN.gt(0)

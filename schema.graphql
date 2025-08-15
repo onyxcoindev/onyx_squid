@@ -4,7 +4,7 @@ type User @entity {
   ethPoints: Float!
   onyxPoints: Float!
   balance: BigInt
-  lastUpdatedAtBlock: Int
+  balanceUpdatedAtBlock: Int
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -54,6 +54,17 @@ type Stats @entity {
   id: ID!
   totalStaked: BigInt!
   lastUpdatedBlock: Int!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PointSetting @entity {
+  id: ID!
+  pointsPerDay: Float!
+  ethWeight: Float!
+  onyxWeight: Float!
+  ethStartBlock: Int!
+  onyxStartBlock: Int!
   createdAt: DateTime
   updatedAt: DateTime
 }

@@ -32,7 +32,7 @@ export class StakeAction extends Action<StakeActionData> {
     assert(user !== null)
 
     user.balance += this.data.amount
-    user.lastUpdatedAtBlock = this.block.height
+    user.balanceUpdatedAtBlock = this.block.height
 
     await this.store.upsert(user)
   }
@@ -84,7 +84,7 @@ export class WithdrawAction extends Action<WithdrawActionData> {
     assert(user !== null)
 
     user.balance -= this.data.amount
-    user.lastUpdatedAtBlock = this.block.height
+    user.balanceUpdatedAtBlock = this.block.height
 
     await this.store.upsert(user)
   }
