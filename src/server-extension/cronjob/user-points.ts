@@ -1,15 +1,18 @@
+import axios from 'axios'
 import cron from 'node-cron'
 import _ from 'lodash'
-import { EntityManager, LessThan, LessThanOrEqual } from 'typeorm'
+import { EntityManager, LessThanOrEqual } from 'typeorm'
 import { BigDecimal } from '@subsquid/big-decimal'
-import { formatServiceName, wrapPromiseFunction, cronExpression, ZERO_BN } from '../utils'
+import { formatServiceName, mergeArrayOfObjectsByKey, wrapPromiseFunction } from '../utils'
 import {
   BLOCKS_PER_DAY,
+  ONYX_POINTS_API_ENDPOINT,
   POINTS_CALCULATED_AT_BLOCK,
   POINTS_PER_DAY,
   XCN_ADDRESS,
 } from '../../config'
 import { Asset, User } from '../../model'
+import { cronExpression, ZERO_BN } from '../constants'
 
 interface IUserBalance {
   user_id: string
@@ -18,6 +21,10 @@ interface IUserBalance {
   points: string | number
   user_points_paid: string | number
   last_updated_block: number
+}
+
+interface IUserEarned {
+  [id: string]: string
 }
 
 export const cronUserPoints = async (manager: EntityManager) => {
@@ -48,16 +55,30 @@ const handleUserPoints = async (manager: EntityManager) => {
   if (!asset) return {}
 
   const additionalPoints = calculateAdditionalPoints(asset, currentBlock)
-  const usersBalance = await getUsersBalanceAtBlock(manager, currentBlock, XCN_ADDRESS)
 
-  const usersEarned = usersBalance.reduce((acc: { [x: string]: string }, user: IUserBalance) => {
+  const [usersBalance, usersPointsOnOnyx] = await Promise.all([
+    getUsersBalanceAtBlock(manager, currentBlock, XCN_ADDRESS),
+    getUsersPointsOnOnyx(),
+  ])
+
+  const usersEarned: IUserEarned = usersBalance.reduce((acc: IUserEarned, user: IUserBalance) => {
     const pointsEarned = pointsPerAsset(user, asset, additionalPoints)
     acc[user.user_id] = acc[user.user_id] || '0'
     acc[user.user_id] = BigDecimal(acc[user.user_id]).plus(pointsEarned).toString()
     return acc
   }, {})
+  const usersPointsOnEth = Object.entries(usersEarned).map(([id, ethPoints]) => ({ id, ethPoints }))
+  const usersPoints = mergeArrayOfObjectsByKey([...usersPointsOnEth, ...usersPointsOnOnyx], 'id')
 
-  const records = Object.entries(usersEarned).map(([id, points]: any) => ({ id, points }))
+  const records = usersPoints.map((user) => ({
+    id: user.id,
+    ethPoints: user.ethPoints ?? '0',
+    onyxPoints: user.onyxPoints ?? '0',
+    points: BigDecimal(user.ethPoints ?? '0')
+      .plus(user.onyxPoints ?? '0')
+      .toString(),
+  }))
+
   const chunks = _.chunk(records, 100)
   for (const chunk of chunks) {
     await userRepo.upsert(chunk, {
@@ -65,6 +86,28 @@ const handleUserPoints = async (manager: EntityManager) => {
       skipUpdateIfNoValuesChanged: true,
     })
   }
+}
+
+const getUsersPointsOnOnyx = async () => {
+  let page = 1
+  let passed = false
+
+  const results = []
+  while (!passed) {
+    const res = await axios.get(`${ONYX_POINTS_API_ENDPOINT}/passive-points/leaderboard`, {
+      params: { page, limit: 300 },
+    })
+    const users = (res.data.data.results ?? []).map((user: { id: string; points: string }) => ({
+      id: user.id,
+      onyxPoints: user.points,
+    }))
+    results.push(...users)
+
+    passed = users.length <= 300
+    page++
+  }
+
+  return results
 }
 
 const getCurrentBlock = async (manager: EntityManager) => {

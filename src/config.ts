@@ -16,6 +16,8 @@ export const POINTS_CALCULATED_AT_BLOCK = parseInt(
   10
 ) // (Block number when points were calculated)
 
+export const ONYX_POINTS_API_ENDPOINT = 'https://pnt.onyx.org/api/v1'
+
 export const RPC_ETH_HTTP = process.env.RPC_ETH_HTTP || 'https://ethereum-rpc.publicnode.com'
 export const ETH_GATEWAY_ENDPOINT = 'https://v2.archive.subsquid.io/network/ethereum-mainnet'
 export const FINALITY_CONFIRMATION = 75

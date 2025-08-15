@@ -1,5 +1,6 @@
-import { BigDecimal } from '@subsquid/big-decimal'
+import _ from 'lodash'
 import moment from 'moment'
+import { ObjectLiteral } from 'typeorm'
 
 export function formatServiceName(str: string) {
   if (!str) return 'null'
@@ -34,12 +35,21 @@ export function wrapPromiseFunction<T, A extends any[]>(
   }
 }
 
-export const ZERO_BI = BigInt(0)
-export const ZERO_BN = BigDecimal(0)
+export function mergeArrayOfObjectsByKey<E extends ObjectLiteral>(arr: E[], key: keyof E) {
+  // Create an empty object to store the merged objects
+  const mergedObj = {} as Record<string, E>
 
-export const cronExpression = {
-  every10Seconds: '*/10 * * * * *',
-  every15Seconds: '*/15 * * * * *',
-  every30Seconds: '0,30 * * * * *',
-  every60Seconds: '0 * * * * *',
+  // Iterate over each object in the array
+  arr.forEach((obj) => {
+    // Extract the value of the specified key
+    const keyValue = obj[key]
+
+    // Merge the current object into the merged object based on the key value
+    mergedObj[keyValue] = _.merge(mergedObj[keyValue], obj)
+  })
+
+  // Convert the merged object back to an array
+  const mergedArr = Object.values(mergedObj)
+
+  return mergedArr
 }

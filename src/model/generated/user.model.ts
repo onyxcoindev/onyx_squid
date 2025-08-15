@@ -16,8 +16,24 @@ export class User {
   @PrimaryColumn_()
   id!: string
 
+  @Column_('numeric', {
+    name: 'eth_points',
+    transformer: marshal.floatTransformer,
+    nullable: true,
+    default: 0,
+  })
+  ethPoints!: string
+
+  @Column_('numeric', {
+    name: 'onyx_points',
+    transformer: marshal.floatTransformer,
+    nullable: true,
+    default: 0,
+  })
+  onyxPoints!: string
+
   @Column_('numeric', { transformer: marshal.floatTransformer, nullable: false })
-  points!: number
+  points!: string
 
   @Column_('numeric', { transformer: marshal.bigintTransformer, nullable: true })
   balance!: bigint

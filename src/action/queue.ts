@@ -11,13 +11,12 @@ import {
   ActionTransaction,
   BaseActionRegistry,
 } from './base'
-import { CreateUserAction, UpdateUserAction } from './user'
+import { CreateUserAction } from './user'
 import { StakeAction, WithdrawAction } from './staking'
 import { PointsAction } from './points'
 
 const Actions = {
   user_create: CreateUserAction,
-  user_update: UpdateUserAction,
   user_stake: StakeAction,
   user_withdraw: WithdrawAction,
   user_update_points: PointsAction,

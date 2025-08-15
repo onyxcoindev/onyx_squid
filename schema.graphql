@@ -1,6 +1,8 @@
 type User @entity {
   id: ID! # address
   points: Float!
+  ethPoints: Float!
+  onyxPoints: Float!
   balance: BigInt
   lastUpdatedAtBlock: Int
   createdAt: DateTime
