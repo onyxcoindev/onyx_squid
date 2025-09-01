@@ -31,6 +31,8 @@ export class StakeAction extends Action<StakeActionData> {
     const user = await this.store.getOrFail(User, userId)
     assert(user !== null)
 
+    if (!user.balance) user.balance = 0n
+
     user.balance += this.data.amount
     user.balanceUpdatedAtBlock = this.block.height
 
