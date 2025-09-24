@@ -10,7 +10,7 @@ export interface StakeActionData {
 export class StakeAction extends Action<StakeActionData> {
   async perform() {
     const stake = new Stake({
-      id: this.transaction?.id,
+      id: `${this.data.userId}#${this.transaction?.id}`,
       userId: this.data.userId,
       amount: this.data.amount,
       blockNumber: this.block.height,
