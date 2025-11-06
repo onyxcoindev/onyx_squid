@@ -3,6 +3,7 @@ import { Stake, Stats, User, Withdraw } from '../model'
 import { Action } from './base'
 
 export interface StakeActionData {
+  logIndex: number
   userId: string
   amount: bigint
 }
@@ -10,7 +11,7 @@ export interface StakeActionData {
 export class StakeAction extends Action<StakeActionData> {
   async perform() {
     const stake = new Stake({
-      id: this.transaction?.id,
+      id: this.transaction?.id + '-' + this.data.logIndex,
       userId: this.data.userId,
       amount: this.data.amount,
       blockNumber: this.block.height,
@@ -57,6 +58,7 @@ export class StakeAction extends Action<StakeActionData> {
 }
 
 export interface WithdrawActionData {
+  logIndex: number
   userId: string
   amount: bigint
 }
@@ -64,7 +66,7 @@ export interface WithdrawActionData {
 export class WithdrawAction extends Action<WithdrawActionData> {
   async perform() {
     const withdraw = new Withdraw({
-      id: this.transaction?.id,
+      id: this.transaction?.id + '-' + this.data.logIndex,
       userId: this.data.userId,
       amount: this.data.amount,
       blockNumber: this.block.height,

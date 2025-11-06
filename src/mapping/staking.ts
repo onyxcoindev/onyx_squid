@@ -38,6 +38,7 @@ function handleStaked(ctx: MappingContext<StoreWithCache>, log: Log) {
       }
     })
     .add('user_stake', {
+      logIndex: log.logIndex,
       userId,
       amount,
     })
@@ -64,6 +65,7 @@ function handleWithdraw(ctx: MappingContext<StoreWithCache>, log: Log) {
       }
     })
     .add('user_withdraw', {
+      logIndex: log.logIndex,
       userId,
       amount,
     })
