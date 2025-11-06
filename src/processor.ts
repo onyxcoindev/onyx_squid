@@ -33,7 +33,11 @@ export const processor = new EvmBatchProcessor()
   })
   .addLog({
     address: [STAKING_ADDRESS],
-    topic0: [stakingAbi.events.Stake.topic, stakingAbi.events.Withdraw.topic],
+    topic0: [
+      stakingAbi.events.Stake.topic,
+      stakingAbi.events.Withdraw.topic,
+      stakingAbi.events.EmergencyWithdraw.topic,
+    ],
     transaction: true,
   })
 

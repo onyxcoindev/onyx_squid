@@ -16,6 +16,10 @@ export function getStakingActions(ctx: MappingContext<StoreWithCache>, item: Ite
         case stakingAbi.events.Withdraw.topic:
           handleWithdraw(ctx, log)
           break
+
+        case stakingAbi.events.EmergencyWithdraw.topic:
+          handleEmergencyWithdraw(ctx, log)
+          break
       }
       break
     }
@@ -51,6 +55,33 @@ function handleStaked(ctx: MappingContext<StoreWithCache>, log: Log) {
 
 function handleWithdraw(ctx: MappingContext<StoreWithCache>, log: Log) {
   const event = stakingAbi.events.Withdraw.decode(log)
+
+  const amount = event.amount
+  const userId = event.user
+
+  const userDeferred = ctx.store.defer(User, userId)
+
+  ctx.queue
+    .lazy(async () => {
+      const user = await userDeferred.get()
+      if (!user) {
+        ctx.queue.add('user_create', { address: userId })
+      }
+    })
+    .add('user_withdraw', {
+      logIndex: log.logIndex,
+      userId,
+      amount,
+    })
+    .add('user_update_points', {
+      userId,
+      assetId: 'XCN',
+      amount: -amount,
+    })
+}
+
+function handleEmergencyWithdraw(ctx: MappingContext<StoreWithCache>, log: Log) {
+  const event = stakingAbi.events.EmergencyWithdraw.decode(log)
 
   const amount = event.amount
   const userId = event.user

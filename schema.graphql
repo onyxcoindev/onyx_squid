@@ -41,7 +41,7 @@ type Asset @entity {
 type UserBalance @entity {
   id: ID!
   user: User!
-  asset: Asset!
+  assetAddress: String!
   balance: BigInt!
   points: Float!
   userPointsPaid: Float!
@@ -63,8 +63,8 @@ type PointSetting @entity {
   pointsPerDay: Float!
   ethWeight: Float!
   onyxWeight: Float!
-  ethStartBlock: Int!
-  onyxStartBlock: Int!
+  ethStartBlock: Int
+  onyxStartBlock: Int
   createdAt: DateTime
   updatedAt: DateTime
 }
