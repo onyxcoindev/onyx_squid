@@ -96,7 +96,7 @@ const getUsersPointsOnOnyx = async () => {
     }))
     results.push(...users)
 
-    passed = users.length <= 300
+    passed = users.length < 300
     page++
   }
 
