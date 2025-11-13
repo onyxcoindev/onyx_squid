@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'onyx-squid-processor',
+      name: 'processor',
       script: 'sqd process:prod',
       watch: false,
       max_memory_restart: '1G',
@@ -13,7 +13,7 @@ module.exports = {
       },
     },
     {
-      name: 'onyx-squid-cron',
+      name: 'cron',
       script: 'sqd cron',
       watch: false,
       max_memory_restart: '1G',
@@ -25,7 +25,7 @@ module.exports = {
       },
     },
     {
-      name: 'onyx-squid-server',
+      name: 'server',
       script: 'sqd serve:prod',
       watch: false,
       max_memory_restart: '1G',
